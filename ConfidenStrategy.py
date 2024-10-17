@@ -25,10 +25,10 @@ from deepgram import DeepgramClient,SpeakOptions
 load_dotenv()
 
 # Configuration
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', '7YMB9LLQYHEQAKWX')
-GROQ_API_KEY = os.getenv('GROQ_API_KEY', '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')
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'cs5lv9pr01qo1hu1n1f0cs5lv9pr01qo1hu1n1fg')
-DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY','d696f5386856eabf9947650f865b1d5a6c49b136')
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY')
 
 # Initialize session state
 if 'chat_history' not in st.session_state:
@@ -121,14 +121,14 @@ def get_sector_performance():
     return None
 
 # Updated function to get company competitors
-@cache_api_call(ttl_seconds=86400)  # Cache for 24 hours
+@cache_api_call(ttl_seconds=86400)  
 def get_company_competitors(symbol):
     url = f'https://finnhub.io/api/v1/stock/peers?symbol={symbol}&token={FINNHUB_API_KEY}'
     try:
         response = requests.get(url)
         if response.status_code == 200:
             competitors = response.json()
-            return competitors[:4]  # Return top 4 competitors
+            return competitors[:4]  
     except Exception as e:
         st.error(f"Error fetching company competitors: {str(e)}")
     return []
@@ -136,7 +136,7 @@ def get_company_competitors(symbol):
 # Chat-related functions
 def get_chatbot_response(user_input, strategy_context):
     try:
-        # Prepare context from strategy
+        
         context = f"""
         Based on the following strategy context:
         Company: {strategy_context['company_name']}
@@ -238,10 +238,10 @@ def create_market_share_graph(company_name, company_data, competitor_data):
         
         quarters = ['Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025']
         growth_factors = {
-            0: [1, 1.1, 1.2, 1.3],  # Company growth
-            1: [1, 1.05, 1.1, 1.15],  # Top competitor
-            2: [1, 1.03, 1.06, 1.09],  # Second competitor
-            3: [1, 1.02, 1.04, 1.06],  # Third competitor
+            0: [1, 1.1, 1.2, 1.3],  
+            1: [1, 1.05, 1.1, 1.15],  
+            2: [1, 1.03, 1.06, 1.09],  
+            3: [1, 1.02, 1.04, 1.06],  
         }
         
         fig = go.Figure()
@@ -264,7 +264,7 @@ def create_market_share_graph(company_name, company_data, competitor_data):
 
 def create_resource_allocation_pie(company_data):
     try:
-        # Calculate resource allocation based on company financials
+       
         r_and_d = float(company_data.get('R&DExpenses', 0))
         revenue = float(company_data.get('RevenueTTM', 0))
         assets = float(company_data.get('TotalAssets', 0))
@@ -293,7 +293,7 @@ def create_revenue_projection(company_data):
         months = ['Jun 2024', 'Sep 2024', 'Dec 2024', 'Mar 2025']
         baseline = [current_revenue * (1 + growth_rate * i/4) for i in range(4)]
         
-        # Adjust the strategy impact based on company's current performance and profit margin
+       
         strategy_impact = growth_rate * (1 + profit_margin) * 1.5 if growth_rate > 0.05 else growth_rate * (1 + profit_margin) * 2
         with_strategy = [current_revenue * (1 + (growth_rate + strategy_impact) * i/4) for i in range(4)]
         
@@ -401,17 +401,17 @@ def get_base64_encoded_audio(file_path):
     with open(file_path, "rb") as audio_file:
         return base64.b64encode(audio_file.read()).decode('utf-8')
 def speak_text_deepgram(text, restart=False, section_key="default"):
-    # Stop any currently playing audio before starting new one
+   
     stop_speaking()
     
     if restart:
         st.session_state.tts_state['position'] = 0
     
-    # Add a playing flag for this specific section
+   
     if 'current_section' not in st.session_state.tts_state:
         st.session_state.tts_state['current_section'] = None
     
-    # If already playing this section, don't start again
+
     if st.session_state.tts_state['playing'] and st.session_state.tts_state['current_section'] == section_key:
         return
     
@@ -419,7 +419,7 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
     remaining_text = text[st.session_state.tts_state['position']:]
     chunk_counter = 0
     
-    # Set the current section
+  
     st.session_state.tts_state['current_section'] = section_key
     st.session_state.tts_state['playing'] = True
     
@@ -430,17 +430,17 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
         if audio_file:
             st.session_state.tts_state['audio_file'] = audio_file
             
-            # Encode the audio file to base64
+          
             audio_base64 = get_base64_encoded_audio(audio_file)
             
-            # Use HTML5 audio player with unique key
+           
             audio_key = f"audio_{section_key}_{chunk_counter}"
             st.markdown(
                 f'<audio id="{audio_key}" autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
                 unsafe_allow_html=True
             )
             
-            # Add unique key for download button
+          
             download_key = f"download_{section_key}_{chunk_counter}"
             st.download_button(
                 label="Download Audio",
@@ -450,7 +450,7 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
                 key=download_key
             )
             
-            # Update the position for the next chunk
+            
             st.session_state.tts_state['position'] += len(chunk)
             remaining_text = remaining_text[MAX_CHARS:]
             chunk_counter += 1
@@ -468,7 +468,7 @@ def stop_speaking():
             st.error(f"Error removing audio file: {str(e)}")
         del st.session_state.tts_state['audio_file']
 
-# Initialize TTS state with additional fields
+
 if 'tts_state' not in st.session_state:
     st.session_state.tts_state = {
         'playing': False,
@@ -494,7 +494,7 @@ def main():
     
     company_symbol = st.text_input("Enter company stock symbol (e.g., AAPL):")
     
-    # Initialize competitor_data
+  
     competitor_data = []
     
     col1, col2, col3 = st.columns(3)
@@ -531,7 +531,7 @@ def main():
                 strategy_sections, metrics, company_data, competitor_data = create_strategy(company_symbol, strategy_query)
                 
                 if company_data:
-                    # Save strategy context for chat
+              
                     st.session_state.strategy_context = {
                         'company_name': company_data.get('Name', company_symbol),
                         'industry': industry,
@@ -540,17 +540,17 @@ def main():
                         'metrics': metrics
                     }
                     
-                    # Save company data and strategy sections for future use
+                  
                     st.session_state.company_data = company_data
                     st.session_state.strategy_sections = strategy_sections
-                    st.session_state.competitor_data = competitor_data  # Save competitor_data in session state
+                    st.session_state.competitor_data = competitor_data 
 
-    # Display strategy if it exists
+  
     if 'strategy_sections' in st.session_state and st.session_state.strategy_sections:
         display_strategy(st.session_state.strategy_sections, 
                          st.session_state.company_data, 
                          st.session_state.strategy_context, 
-                         st.session_state.get('competitor_data', []))  # Use .get() to safely access competitor_data
+                         st.session_state.get('competitor_data', []))  
 
     # Additional Analysis Options
     st.sidebar.header("Additional Analysis Options")
@@ -574,18 +574,15 @@ def main():
                 st.sidebar.markdown(f"{sector}: {performance}")
         else:
             st.sidebar.warning("Unable to fetch sector performance data")
-    
-    # File upload for additional context
+  
     uploaded_file = st.sidebar.file_uploader("Upload additional company data", type=["txt", "pdf"])
     if uploaded_file is not None:
         try:
-            # Read the file as bytes and then decode
+        
             file_contents = uploaded_file.read()
             try:
-                # Try UTF-8 decoding first
                 stringio = StringIO(file_contents.decode("utf-8"))
             except UnicodeDecodeError:
-                # If UTF-8 fails, try ISO-8859-1
                 stringio = StringIO(file_contents.decode("iso-8859-1"))
             st.sidebar.success("File uploaded successfully. Analysis updated.")
         except Exception as e:
@@ -735,17 +732,17 @@ def get_base64_encoded_audio(file_path):
         return base64.b64encode(audio_file.read()).decode('utf-8')
 
 def speak_text_deepgram(text, restart=False, section_key="default"):
-    # Stop any currently playing audio before starting new one
+ 
     stop_speaking()
     
     if restart:
         st.session_state.tts_state['position'] = 0
     
-    # Add a playing flag for this specific section
+ 
     if 'current_section' not in st.session_state.tts_state:
         st.session_state.tts_state['current_section'] = None
     
-    # If already playing this section, don't start again
+  
     if st.session_state.tts_state['playing'] and st.session_state.tts_state['current_section'] == section_key:
         return
     
@@ -753,7 +750,7 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
     remaining_text = text[st.session_state.tts_state['position']:]
     chunk_counter = 0
     
-    # Set the current section
+  
     st.session_state.tts_state['current_section'] = section_key
     st.session_state.tts_state['playing'] = True
     
@@ -764,17 +761,17 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
         if audio_file:
             st.session_state.tts_state['audio_file'] = audio_file
             
-            # Encode the audio file to base64
+    
             audio_base64 = get_base64_encoded_audio(audio_file)
             
-            # Use HTML5 audio player with unique key
+           
             audio_key = f"audio_{section_key}_{chunk_counter}"
             st.markdown(
                 f'<audio id="{audio_key}" autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
                 unsafe_allow_html=True
             )
             
-            # Add unique key for download button
+        
             download_key = f"download_{section_key}_{chunk_counter}"
             st.download_button(
                 label="Download Audio",
@@ -784,7 +781,7 @@ def speak_text_deepgram(text, restart=False, section_key="default"):
                 key=download_key
             )
             
-            # Update the position for the next chunk
+          
             st.session_state.tts_state['position'] += len(chunk)
             remaining_text = remaining_text[MAX_CHARS:]
             chunk_counter += 1
@@ -802,7 +799,7 @@ def stop_speaking():
             st.error(f"Error removing audio file: {str(e)}")
         del st.session_state.tts_state['audio_file']
 
-# Initialize TTS state with additional fields
+
 if 'tts_state' not in st.session_state:
     st.session_state.tts_state = {
         'playing': False,
@@ -811,7 +808,7 @@ if 'tts_state' not in st.session_state:
     }
 
 
-# In the render_chat_interface function, update the speak buttons:
+
 def render_chat_interface():
     st.sidebar.subheader("Strategy Assistant")
     
