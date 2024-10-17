@@ -25,10 +25,10 @@ from deepgram import DeepgramClient,SpeakOptions
 load_dotenv()
 
 # Configuration
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', '7YMB9LLQYHEQAKWX')
-GROQ_API_KEY = os.getenv('GROQ_API_KEY', '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')
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'cs5lv9pr01qo1hu1n1f0cs5lv9pr01qo1hu1n1fg')
-DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY','d696f5386856eabf9947650f865b1d5a6c49b136')
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', 'API_KEY')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', 'API_KEY')
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'API_KEY')
+DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY','API_KEY')
 
 # Initialize session state
 if 'chat_history' not in st.session_state:
@@ -166,7 +166,7 @@ def get_chatbot_response(user_input, strategy_context):
     except Exception as e:
         return f"I apologize, but I'm having trouble processing your request. Error: {str(e)}"
 
-# Update the render_chat_interface function
+
 def render_chat_interface():
     st.sidebar.subheader("Strategy Assistant")
     
@@ -179,13 +179,13 @@ def render_chat_interface():
             col1, col2, col3 = response_container.columns(3)
             with col1:
                 if st.button("🔊 Speak", key=f"speak_{i}"):
-                    speak_text_deepgram(message['content'])
+                    speak_text_deepgram(message['content'], section_key=f"chat_{i}")
             with col2:
                 if st.button("⏹️ Stop", key=f"stop_{i}"):
                     stop_speaking()
             with col3:
                 if st.button("🔁 Restart", key=f"restart_{i}"):
-                    speak_text_deepgram(message['content'], restart=True)
+                    speak_text_deepgram(message['content'], restart=True, section_key=f"chat_{i}")
     
     user_input = st.sidebar.chat_input("Type your question...")
     if user_input:
@@ -400,59 +400,82 @@ def generate_audio_deepgram(text):
 def get_base64_encoded_audio(file_path):
     with open(file_path, "rb") as audio_file:
         return base64.b64encode(audio_file.read()).decode('utf-8')
-
-def speak_text_deepgram(text, restart=False):
+def speak_text_deepgram(text, restart=False, section_key="default"):
+    # Stop any currently playing audio before starting new one
+    stop_speaking()
+    
     if restart:
         st.session_state.tts_state['position'] = 0
     
+    # Add a playing flag for this specific section
+    if 'current_section' not in st.session_state.tts_state:
+        st.session_state.tts_state['current_section'] = None
+    
+    # If already playing this section, don't start again
+    if st.session_state.tts_state['playing'] and st.session_state.tts_state['current_section'] == section_key:
+        return
+    
     MAX_CHARS = 1999
     remaining_text = text[st.session_state.tts_state['position']:]
+    chunk_counter = 0
     
-    while remaining_text:
+    # Set the current section
+    st.session_state.tts_state['current_section'] = section_key
+    st.session_state.tts_state['playing'] = True
+    
+    while remaining_text and st.session_state.tts_state['playing']:
         chunk = remaining_text[:MAX_CHARS]
         audio_file = generate_audio_deepgram(chunk)
         
         if audio_file:
-            st.session_state.tts_state['playing'] = True
             st.session_state.tts_state['audio_file'] = audio_file
             
             # Encode the audio file to base64
             audio_base64 = get_base64_encoded_audio(audio_file)
             
-            # Use HTML5 audio player
+            # Use HTML5 audio player with unique key
+            audio_key = f"audio_{section_key}_{chunk_counter}"
             st.markdown(
-                f'<audio autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
+                f'<audio id="{audio_key}" autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
                 unsafe_allow_html=True
             )
             
-            # Also provide a download link for the audio
+            # Add unique key for download button
+            download_key = f"download_{section_key}_{chunk_counter}"
             st.download_button(
                 label="Download Audio",
                 data=open(audio_file, "rb"),
-                file_name="tts_audio.wav",
-                mime="audio/wav"
+                file_name=f"tts_audio_{section_key}_{chunk_counter}.wav",
+                mime="audio/wav",
+                key=download_key
             )
             
             # Update the position for the next chunk
             st.session_state.tts_state['position'] += len(chunk)
             remaining_text = remaining_text[MAX_CHARS:]
+            chunk_counter += 1
         else:
             st.error("Failed to generate audio file.")
             break
 
 def stop_speaking():
     st.session_state.tts_state['playing'] = False
+    st.session_state.tts_state['current_section'] = None
     if 'audio_file' in st.session_state.tts_state:
         try:
             os.remove(st.session_state.tts_state['audio_file'])
-            st.success(f"Removed audio file: {st.session_state.tts_state['audio_file']}")
         except Exception as e:
             st.error(f"Error removing audio file: {str(e)}")
         del st.session_state.tts_state['audio_file']
 
-# Initialize TTS state in session state if not already present
+# Initialize TTS state with additional fields
 if 'tts_state' not in st.session_state:
-    st.session_state.tts_state = {'playing': False, 'position': 0}
+    st.session_state.tts_state = {
+        'playing': False,
+        'position': 0,
+        'current_section': None
+    }
+
 
 
 
@@ -590,7 +613,7 @@ def display_strategy(strategy_sections, company_data, strategy_context, competit
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("🔊 Speak", key="speak_exec_summary"):
-            speak_text_deepgram(strategy_sections["executive_summary"])
+            speak_text_deepgram(strategy_sections["executive_summary"],section_key = "exec_summary")
     with col2:
         if st.button("⏹️ Stop", key="stop_exec_summary"):
             stop_speaking()
@@ -606,7 +629,7 @@ def display_strategy(strategy_sections, company_data, strategy_context, competit
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("🔊 Speak", key="speak_market_analysis"):
-            speak_text_deepgram(strategy_sections["market_analysis"])
+            speak_text_deepgram(strategy_sections["market_analysis"],section_key = "market_analysis")
     with col2:
         if st.button("⏹️ Stop", key="stop_market_analysis"):
             stop_speaking()
@@ -635,7 +658,7 @@ def display_strategy(strategy_sections, company_data, strategy_context, competit
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("🔊 Speak", key="speak_strategic_initiatives"):
-            speak_text_deepgram(strategy_sections["strategic_initiatives"])
+            speak_text_deepgram(strategy_sections["strategic_initiatives"],section_key = "strategic_initiatives")
     with col2:
         if st.button("⏹️ Stop", key="stop_strategic_initiatives"):
             stop_speaking()
@@ -650,7 +673,7 @@ def display_strategy(strategy_sections, company_data, strategy_context, competit
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("🔊 Speak", key="speak_implementation_plan"):
-            speak_text_deepgram(strategy_sections["implementation_plan"])
+            speak_text_deepgram(strategy_sections["implementation_plan"],section_key = "implementation_plan")
     with col2:
         if st.button("⏹️ Stop", key="stop_implementation_plan"):
             stop_speaking()
@@ -711,61 +734,84 @@ def get_base64_encoded_audio(file_path):
     with open(file_path, "rb") as audio_file:
         return base64.b64encode(audio_file.read()).decode('utf-8')
 
-def speak_text_deepgram(text, restart=False):
+def speak_text_deepgram(text, restart=False, section_key="default"):
+    # Stop any currently playing audio before starting new one
+    stop_speaking()
+    
     if restart:
         st.session_state.tts_state['position'] = 0
     
+    # Add a playing flag for this specific section
+    if 'current_section' not in st.session_state.tts_state:
+        st.session_state.tts_state['current_section'] = None
+    
+    # If already playing this section, don't start again
+    if st.session_state.tts_state['playing'] and st.session_state.tts_state['current_section'] == section_key:
+        return
+    
     MAX_CHARS = 1999
     remaining_text = text[st.session_state.tts_state['position']:]
+    chunk_counter = 0
     
-    while remaining_text:
+    # Set the current section
+    st.session_state.tts_state['current_section'] = section_key
+    st.session_state.tts_state['playing'] = True
+    
+    while remaining_text and st.session_state.tts_state['playing']:
         chunk = remaining_text[:MAX_CHARS]
         audio_file = generate_audio_deepgram(chunk)
         
         if audio_file:
-            st.session_state.tts_state['playing'] = True
             st.session_state.tts_state['audio_file'] = audio_file
             
             # Encode the audio file to base64
             audio_base64 = get_base64_encoded_audio(audio_file)
             
-            # Use HTML5 audio player
+            # Use HTML5 audio player with unique key
+            audio_key = f"audio_{section_key}_{chunk_counter}"
             st.markdown(
-                f'<audio autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
+                f'<audio id="{audio_key}" autoplay="true" src="data:audio/wav;base64,{audio_base64}">',
                 unsafe_allow_html=True
             )
             
-            # Also provide a download link for the audio
+            # Add unique key for download button
+            download_key = f"download_{section_key}_{chunk_counter}"
             st.download_button(
                 label="Download Audio",
                 data=open(audio_file, "rb"),
-                file_name="tts_audio.wav",
-                mime="audio/wav"
+                file_name=f"tts_audio_{section_key}_{chunk_counter}.wav",
+                mime="audio/wav",
+                key=download_key
             )
             
             # Update the position for the next chunk
             st.session_state.tts_state['position'] += len(chunk)
             remaining_text = remaining_text[MAX_CHARS:]
+            chunk_counter += 1
         else:
             st.error("Failed to generate audio file.")
             break
 
 def stop_speaking():
     st.session_state.tts_state['playing'] = False
+    st.session_state.tts_state['current_section'] = None
     if 'audio_file' in st.session_state.tts_state:
         try:
             os.remove(st.session_state.tts_state['audio_file'])
-            st.success(f"Removed audio file: {st.session_state.tts_state['audio_file']}")
         except Exception as e:
             st.error(f"Error removing audio file: {str(e)}")
         del st.session_state.tts_state['audio_file']
 
-# Initialize TTS state in session state if not already present
+# Initialize TTS state with additional fields
 if 'tts_state' not in st.session_state:
-    st.session_state.tts_state = {'playing': False, 'position': 0}
+    st.session_state.tts_state = {
+        'playing': False,
+        'position': 0,
+        'current_section': None
+    }
 
 
-# Update the render_chat_interface function
+# In the render_chat_interface function, update the speak buttons:
 def render_chat_interface():
     st.sidebar.subheader("Strategy Assistant")
     
@@ -778,13 +824,13 @@ def render_chat_interface():
             col1, col2, col3 = response_container.columns(3)
             with col1:
                 if st.button("🔊 Speak", key=f"speak_{i}"):
-                    speak_text_deepgram(message['content'])
+                    speak_text_deepgram(message['content'], section_key=f"chat_{i}")
             with col2:
                 if st.button("⏹️ Stop", key=f"stop_{i}"):
                     stop_speaking()
             with col3:
                 if st.button("🔁 Restart", key=f"restart_{i}"):
-                    speak_text_deepgram(message['content'], restart=True)
+                    speak_text_deepgram(message['content'], restart=True, section_key=f"chat_{i}")
     
     user_input = st.sidebar.chat_input("Type your question...")
     if user_input:
