@@ -18,7 +18,6 @@ Access the live demo of the ConfidenStrategy application:\
 - [Core Functionality](#core-functionality)
 - [Technical Details](#technical-details)
 - [Output](#output)
-- [Technology Stack](#technology-stack)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -160,12 +159,11 @@ This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md)
 
 For any inquiries, feel free to reach out to the team:
 
-- **Project Lead**: Atharsh K 
 - **Email**: [atharshkrishnamoorthy@gmail.com](mailto\:atharshkrishnamoorthy@gmail.com)
 - **Team Members**:
   - [Ranil Mukesh MJ](https://github.com/ranilmukesh)
   - [Sanjith M](https://github.com/Sanjith-3)
   - [Tharun Pranav M](https://github.com/TharunPranavM)
-  - [Siddarth S](https://github.com/YourGitHubUsername)
+  - [Siddarth S](https://github.com/SiddharthWayne)
 - **GitHub Repository**: [ConfidenStrategy](https://github.com/AtharshKrishnamoorthy/ConfidencStrategy)
 
