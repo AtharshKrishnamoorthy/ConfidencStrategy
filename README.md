@@ -4,10 +4,6 @@
 
 [![ConfidenStrategy Demo](https://github.com/user-attachments/assets/6175cbf5-9d6c-48b5-b148-0cfaccab279d)](https://youtu.be/_nFEyKvajJ8?si=t2GKVf45zZS3AV3m)
 
-### Live Demo
-
-Access the live demo of the ConfidenStrategy application:\
-[ConfidenStrategy App](https://confidenstrategy.streamlit.app/)
 
 ## Table of Contents
 
