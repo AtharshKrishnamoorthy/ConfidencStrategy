@@ -163,9 +163,9 @@ For any inquiries, feel free to reach out to the team:
 - **Project Lead**: Atharsh K 
 - **Email**: [atharshkrishnamoorthy@gmail.com](mailto\:atharshkrishnamoorthy@gmail.com)
 - **Team Members**:
-  - **Ranil Mukesh MJ** (@ranilmukesh)
-  - **Sanjith M** (@)
-  - **Tharun Pranav M** (@TharunPranavM)
-  - **Siddarth S** (@)
-- **GitHub Repository**: [ConfidenStrategy](https://github.com/AtharshKrishnamoorthy/ConfidenStrategy)
+  - [Ranil Mukesh MJ](https://github.com/ranilmukesh)
+  - [Sanjith M](https://github.com/Sanjith-3)
+  - [Tharun Pranav M](https://github.com/TharunPranavM)
+  - [Siddarth S](https://github.com/YourGitHubUsername)
+- **GitHub Repository**: [ConfidenStrategy](https://github.com/AtharshKrishnamoorthy/ConfidencStrategy)
 
