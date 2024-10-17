@@ -2,6 +2,8 @@ crewai
 unstructured 
 pyowm 
 tools 
+wikipedia 
+yfinance 
 sec-api 
 tiktoken
 faiss-cpu 
@@ -9,6 +11,7 @@ python-dotenv
 langchain-community 
 langchain-core 
 langchain-groq
+openai 
 streamlit
 cryptography
 plotly
@@ -16,3 +19,4 @@ requests
 langchain-huggingface
 huggingface_hub
 deepgram-sdk
+gtts
