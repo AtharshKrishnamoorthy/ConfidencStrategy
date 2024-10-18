@@ -25,7 +25,7 @@ from deepgram import DeepgramClient,SpeakOptions
 load_dotenv()
 
 # Configuration
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', '7YMB9LLQYHEQAKWX')
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', '5PXWICRQ9I8Z266P')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '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')
 FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'cs5lv9pr01qo1hu1n1f0cs5lv9pr01qo1hu1n1fg')
 DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY','d696f5386856eabf9947650f865b1d5a6c49b136')
