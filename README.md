@@ -4,9 +4,6 @@
 
 [![ConfidenStrategy Demo](https://github.com/user-attachments/assets/6175cbf5-9d6c-48b5-b148-0cfaccab279d)](https://youtu.be/_nFEyKvajJ8?si=t2GKVf45zZS3AV3m)
 
-## Application
-Try using ConfidenStrategy here - [Click Here](https://confidenstrategy.streamlit.app/)
-
 
 ## Table of Contents
 
@@ -31,7 +28,6 @@ ConfidenStrategy offers the following cutting-edge features to revolutionize str
 4. **Chat Assistant**: A Chatbot is integrated where users can ask questions about the strategies generated and about the listed company too.
 5. **Voice Enabling Feature**: For each sections generated in the strategy and the chats  - voice feature is avalible where the chats can be turned into voice and can be downloaded too.
 6. **RAG Integration**: The Company can add addtional info about their profits made and things like that to create a additional knowledge base for the agents generating strategies.
-7. **Multi-Agent Collaboration**: Different AI agents analyze various facets of strategic data, ensuring comprehensive insights across multiple domains.
 
 ## Prerequisites
 
@@ -99,22 +95,14 @@ To launch the ConfidenStrategy platform:
 
 ConfidenStrategy is built with AI frameworks and Cryptographic Libraries which ensures AI integration with Security about the company details too.
 
-1. **Multi-Agent AI Framework**: Utilizes the **Crew AI Framework**, where each AI agent specializes in a specific area of strategic planning, such as:
-
-   - **Market Trends Analysis**
-   - **Competitor Strengths/Weaknesses**
-   - **Resource Allocation Optimization**
-
-   The framework's **multi-agent collaboration** and **decision fusion** ensure accurate and comprehensive strategy generation, as seen in the flowchart where different agents handle specific strategy domains.
-
-2. **Orchestration**: Uses **LangChain** for orchestration combining the agents with the prompts creating a chain, creating a chat Assitant.
+1. **Orchestration**: Uses **LangChain** for orchestration combining the agents with the prompts creating a chain, creating a chat Assitant.
                       **Groq** for utilizing the open sourced LLMs with greater inference - These groq LLMs (Used **LLama 3.1-70B-versatile**) are used as the LLM for the agents.
 
-4. **Voice Capabilities**: Integration with the **Deepgram API** offers text-to-speech functionalities, enabling the users to hear the startegies generated and further it can be downloaded too.
+2. **Voice Capabilities**: Integration with the **Deepgram API** offers text-to-speech functionalities, enabling the users to hear the startegies generated and further it can be downloaded too.
 
-5. **Data Integration and Market Data Retrieval**: Real-time financial and market data are gathered using **Alpha Vantage** and **Finnhub** APIs.
+3. **Data Integration and Market Data Retrieval**: Real-time financial and market data are gathered using **Alpha Vantage** and **Finnhub** APIs.
 
-6. **Vector Storage and Embeddings**: For the RAG it uses -> **Document Loaders**, **Langchain Hugging Embeddings** as Embeddings, and utilizes **FAISS** as vector store to handle high-dimensional data efficiently, supporting the embedding generation and retrieval process to drive LLM-based context retrieval.
+4. **Vector Storage and Embeddings**: For the RAG it uses -> **Document Loaders**, **Langchain Hugging Embeddings** as Embeddings, and utilizes **FAISS** as vector store to handle high-dimensional data efficiently, supporting the embedding generation and retrieval process to drive LLM-based context retrieval.
 
 ## Output
 
@@ -150,19 +138,5 @@ We welcome contributions to ConfidenStrategy! Here's how to get involved:
    git push origin feature-branch
    ```
 
-## License
 
-This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for more details.
-
-## Contact
-
-For any inquiries, feel free to reach out to the team:
-
-- **Email**: [atharshkrishnamoorthy@gmail.com](mailto\:atharshkrishnamoorthy@gmail.com)
-- **Team Members**:
-  - [Ranil Mukesh MJ](https://github.com/ranilmukesh)
-  - [Sanjith M](https://github.com/Sanjith-3)
-  - [Tharun Pranav M](https://github.com/TharunPranavM)
-  - [Siddarth S](https://github.com/SiddharthWayne)
-- **GitHub Repository**: [ConfidenStrategy](https://github.com/AtharshKrishnamoorthy/ConfidencStrategy)
 
